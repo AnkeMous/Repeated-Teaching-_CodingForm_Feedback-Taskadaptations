@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="nl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Codeerformulier Corrigerende feedback en taakadaptaties</title>
+
+<!-- ============ DEEL 1: UITERLIJK (CSS) ============ -->
+<style>
+  /* KU Leuven-huisstijl: lichtblauw #52BDEC, blauw #1D8DB0, donkerblauw #00407A */
+  :root {
+    --lichtblauw: #52BDEC;
+    --blauw: #1D8DB0;
+    --donkerblauw: #00407A;
+    --achtergrond: #eef7fc;
+    --tekst: #0b2a45;
+    --gedempt: #4a6478;
+    --rand: #c9e3f2;
+    --invoerrand: #8fb6cc;
+    --lijn: #d6e9f4;
+    --tint: #dff1fa;
+    --geel: #fff6c2;
+  }
+  body { font-family: Calibri, "Segoe UI", sans-serif; background: var(--achtergrond); color: var(--tekst); margin: 0; }
+  main { max-width: 1100px; margin: auto; padding: 24px; }
+  h1 { font-size: 26px; color: var(--donkerblauw); border-top: 6px solid var(--lichtblauw); padding-top: 14px; }
+  .ondertitel { margin: -6px 0 18px; color: var(--gedempt); font-size: 15px; }
+  h2 { font-size: 20px; margin: 0 0 14px; color: var(--donkerblauw); }
+  h3 { font-size: 17px; margin: 18px 0 10px; }
+  h4 { font-size: 16px; margin: 18px 0 6px; color: var(--donkerblauw); }
+  .panel { background: white; border: 1px solid var(--rand); border-radius: 10px; padding: 20px; margin: 18px 0; }
+  .muted { color: var(--gedempt); font-size: 14px; line-height: 1.5; }
+
+  input, select, textarea { padding: 8px; font: inherit; color: inherit; border: 1px solid var(--invoerrand); border-radius: 6px; background: white; }
+  button { font: inherit; padding: 8px 12px; border: 1px solid var(--invoerrand); border-radius: 6px; background: white; cursor: pointer; color: inherit; }
+  button:hover { background: var(--tint); }
+  button[aria-pressed="true"] { background: var(--lichtblauw); color: var(--donkerblauw); border-color: var(--blauw); font-weight: bold; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--blauw); outline-offset: 2px; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .primary { background: var(--lichtblauw); color: var(--donkerblauw); border-color: var(--blauw); font-weight: bold; }
+  .primary:hover { background: #7fcdf0; }
+  .danger { color: #a12626; }
+
+  /* Gegevenstabellen (label links, invulveld rechts) */
+  .gegevens { width: 100%; border-collapse: collapse; }
+  .gegevens th { width: 280px; text-align: left; background: var(--tint); font-weight: bold; vertical-align: top; }
+  .gegevens th, .gegevens td { padding: 10px 12px; border: 1px solid var(--rand); }
+  .gegevens input[type=text], .gegevens input[type=date] { width: 100%; max-width: 360px; }
+  .gegevens input[type=number].breed { width: 120px; }
+  .gegevens textarea { width: 100%; min-height: 110px; box-sizing: border-box; }
+  .keuze { display: flex; gap: 8px; flex-wrap: wrap; }
+  .keuze button { min-width: 44px; }
+  .rijtje { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .rijtje input[type=number] { width: 80px; }
+  .rijtje input[type=time] { width: 120px; }
+
+  /* In- en uitklapbare blokken */
+  details { border: 1px solid var(--rand); border-radius: 8px; padding: 10px 14px; margin: 12px 0; background: #f7fbfe; }
+  details summary { cursor: pointer; font-weight: bold; }
+  details ul { margin: 8px 0 4px; padding-left: 22px; }
+  details li { margin: 6px 0; line-height: 1.5; }
+  .tabelwrap { overflow-x: auto; margin-top: 10px; }
+  .codetabel { width: 100%; border-collapse: collapse; min-width: 640px; }
+  .codetabel th, .codetabel td { border: 1px solid var(--invoerrand); padding: 8px 10px; text-align: left; vertical-align: top; line-height: 1.45; }
+  .codetabel th { background: var(--tint); }
+
+  /* Codeerpagina op het scherm: 10 uitingen tegelijk */
+  .paginakop { margin: 18px 0 6px; }
+  .schermrijen { max-width: 980px; }
+  .rij { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 6px 6px; border-bottom: 1px solid var(--lijn); }
+  .rij.geel { background: var(--geel); }
+  .rij.blokrand { border-bottom: 3px solid var(--invoerrand); }
+  .nr { width: 40px; text-align: right; font-weight: bold; font-size: 17px; }
+  .tijd { width: 88px; text-align: center; }
+  .tijd.leeg { display: inline-block; }
+  input.tijd[aria-invalid="true"] { border-color: #a12626; background: #fdecec; }
+  .codes { display: flex; gap: 6px; flex: 0 0 220px; }
+  .codes button { flex: 1; min-width: 0; padding: 10px 4px; font-size: 16px; }
+  .opm { flex: 1 1 220px; min-width: 160px; }
+  .nav { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
+  .nav button, .nav select { padding: 11px 18px; border-radius: 10px; font-size: 16px; }
+  .nav select { min-width: 200px; }
+  .stoprij { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+  .melding { min-height: 22px; color: var(--donkerblauw); margin: 10px 0 0; }
+
+  /* Frequentieoverzicht */
+  table.samenvatting, table.totaal { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .samenvatting th, .samenvatting td, .totaal th, .totaal td { padding: 9px 10px; border: 1px solid var(--rand); text-align: center; }
+  .samenvatting th, .totaal th { background: var(--tint); }
+  .samenvatting td:first-child, .totaal th:first-child { text-align: left; }
+  .samenvatting tr.som td { font-weight: bold; background: var(--achtergrond); }
+  .tabelwrap table.samenvatting { min-width: 640px; }
+
+  .acties { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Afdrukversie (op het scherm verborgen) */
+  .afdruk { display: none; }
+  .afdrukrooster { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .arij { display: flex; align-items: center; gap: 4px; padding: 2px; border-bottom: 1px solid #ccc; font-size: 11px; }
+  .arij.geel { background: var(--geel); }
+  .arij.blokrand { border-bottom: 2px solid #000; }
+  .anr { width: 24px; text-align: right; font-weight: bold; }
+  .atijd { width: 40px; text-align: center; }
+  .acode { display: inline-block; min-width: 22px; height: 18px; line-height: 16px; text-align: center; padding: 0 1px; border: 1.5px solid transparent; border-radius: 9px; }
+  .acode.gekozen { border-color: #000; font-weight: bold; }
+  .aopm { flex: 1; min-height: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 10px; }
+  .akolomtotaal { margin-top: 6px; font-size: 12px; font-weight: bold; }
+
+  @media (max-width: 700px) {
+    .gegevens th, .gegevens td { display: block; width: auto; }
+    .nr { width: 30px; }
+    .codes { flex: 1 1 100%; }
+  }
+
+  /* ===== Opmaak: professionele uitstraling ===== */
+  :root { --banner-donker: #082f4d; --schaduw: 0 1px 2px rgba(0, 40, 70, .06), 0 6px 18px rgba(0, 40, 70, .06); }
+  body { font-family: "Segoe UI", Calibri, system-ui, sans-serif; background: #f0f6fa; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+  /* Banner bovenaan */
+  .banner { background: linear-gradient(135deg, var(--banner-donker) 0%, var(--donkerblauw) 100%); color: #fff; border-bottom: 4px solid var(--lichtblauw); }
+  .banner-in { max-width: 1100px; margin: 0 auto; padding: 38px 24px 42px; }
+  .eyebrow { margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #9fdcf5; }
+  .banner h1 { font-size: 36px; line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: #fff; border: 0; padding: 0; margin: 0 0 16px; }
+  .banner .ondertitel { margin: 0; max-width: 780px; font-size: 16.5px; line-height: 1.55; color: #e1f1f9; }
+  main { padding-top: 10px; padding-bottom: 48px; }
+
+  /* Panelen */
+  .panel { border-radius: 14px; border-color: #d3e6f1; box-shadow: var(--schaduw); padding: 24px 26px; margin: 20px 0; }
+  .panel > h2 { padding-bottom: 12px; margin-bottom: 18px; border-bottom: 1px solid var(--lijn); }
+  h2 { font-size: 21px; font-weight: 700; letter-spacing: -.005em; }
+  h3 { color: var(--donkerblauw); font-weight: 600; }
+  .muted { line-height: 1.55; }
+
+  /* Formulierelementen */
+  input, select, textarea { border-radius: 8px; border-color: #a9c7d8; transition: border-color .15s, box-shadow .15s; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blauw); box-shadow: 0 0 0 3px rgba(82, 189, 236, .35); }
+  button { border-radius: 8px; transition: background-color .15s, box-shadow .15s, border-color .15s; }
+  button:hover:not(:disabled) { border-color: var(--blauw); }
+  button[aria-pressed="true"] { box-shadow: inset 0 0 0 1px var(--blauw); }
+  .primary { box-shadow: 0 1px 2px rgba(0, 64, 122, .25); }
+
+  /* Tabellen */
+  .gegevens { border-radius: 10px; }
+  .gegevens th { color: var(--donkerblauw); font-weight: 600; vertical-align: middle; }
+  .gegevens th, .gegevens td { border-color: #d3e6f1; padding: 11px 14px; }
+  .codetabel th, .samenvatting th, .totaal th { color: var(--donkerblauw); font-weight: 600; }
+  .codetabel th, .codetabel td { border-color: #b9d3e2; }
+  .tabelwrap { border-radius: 10px; }
+
+  /* Uitklapblokken */
+  details { border-radius: 10px; border-color: #d3e6f1; padding: 12px 16px; }
+  details summary { color: var(--donkerblauw); }
+  details summary:hover { color: var(--blauw); }
+  details[open] > summary { margin-bottom: 8px; }
+  details.deel { padding: 24px 26px; background: white; margin: 20px 0; }
+  details.deel > summary { list-style: none; display: flex; align-items: center; gap: 10px; }
+  details.deel > summary::-webkit-details-marker { display: none; }
+  details.deel > summary::before { content: "\25B8"; color: var(--blauw); font-size: 20px; transition: transform .15s; }
+  details.deel[open] > summary::before { transform: rotate(90deg); }
+  details.deel > summary h2 { margin: 0; padding: 0; border: 0; }
+  details.deel[open] > summary { margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--lijn); }
+  details.deel details { background: #f7fbfe; }
+
+  /* Codeerrijen */
+  .rij { padding: 8px 6px; }
+  .nav button, .nav select { border-radius: 10px; }
+
+  /* Pop-up verplichte velden */
+  dialog#verplichtDialoog { border: 0; border-radius: 14px; padding: 26px 28px; max-width: 460px; color: var(--tekst); box-shadow: 0 20px 50px rgba(0, 30, 55, .35); }
+  dialog#verplichtDialoog::backdrop { background: rgba(0, 40, 70, .5); }
+  dialog#verplichtDialoog h2 { margin: 0 0 10px; padding: 0; border: 0; }
+  dialog#verplichtDialoog ul { margin: 8px 0; padding-left: 22px; font-weight: 600; }
+
+  @media (max-width: 560px) {
+    .banner-in { padding: 26px 18px 30px; }
+    .banner h1 { font-size: 27px; }
+    .panel, details.deel { padding: 18px 16px; }
+  }
+
+  @media print {
+    @page { size: A4 portrait; margin: 10mm; }
+    body { background: white; }
+    main { padding: 0; max-width: none; display: flex; flex-direction: column; }
+    #paneelGegevens { order: 1; } #paneelSamenvatting { order: 2; } #paneelBetrouwbaarheid { order: 3; }
+    #codeerblad { order: 4; break-before: page; }
+    .panel { border: 0; padding: 0; }
+    .banner { background: none !important; color: #000; border-bottom: 2px solid var(--donkerblauw); }
+    .banner-in { padding: 0 0 8px; max-width: none; }
+    .eyebrow { color: #555; margin-bottom: 4px; font-size: 10px; }
+    .banner h1 { color: var(--donkerblauw); font-size: 20px; margin-bottom: 4px; }
+    .banner .ondertitel { color: #333; font-size: 12px; max-width: none; }
+    .panel { box-shadow: none; }
+    .panel > h2 { border-bottom: 0; padding-bottom: 0; }
+    details.deel { padding: 0; margin: 0 0 12px; }
+    details.deel > summary::before { content: none; }
+    details.deel[open] > summary { border-bottom: 0; padding-bottom: 0; }
+    .nietafdrukken { display: none !important; }
+    .afdruk { display: block; }
+    .afdrukblad { break-after: page; }
+    .afdrukblad:last-child { break-after: auto; }
+    .tabelwrap { overflow: visible; }
+    .totaal th, .totaal td, .samenvatting th, .samenvatting td { padding: 4px 6px; }
+    .gegevens textarea { border: 1px solid #999; }
+    * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  }
+
+</style>
+
+<!-- ============ DEEL 2: DE PAGINA (HTML) ============ -->
+<header class="banner"><div class="banner-in">
+  <p class="eyebrow">Observation / Repeated Teaching / Sportpractica</p>
+  <h1>Codeerformulier Corrigerende feedback en taakadaptaties</h1>
+  <p class="ondertitel">Event recording: elke uiting krijgt precies één code (CF, ET of RT). Werkt lokaal in je browser; je gegevens worden niet geüpload.</p>
+</div></header>
+<main>
+
+  <details class="panel deel" id="paneelGegevens" open>
+    <summary><h2>1. Algemene gegevens</h2></summary>
+    <table class="gegevens">
+      <tr><th>Naam observator</th><td><input type="text" data-veld="observator" aria-label="Naam observator"></td></tr>
+      <tr><th>Lesgever</th><td><input type="text" data-veld="lesgever" aria-label="Lesgever"></td></tr>
+      <tr><th>Datum gecodeerde les</th><td><input type="date" data-veld="datum" aria-label="Datum gecodeerde les"></td></tr>
+      <tr><th>Bewegingsdomein</th><td><div class="keuze" data-veld="domein" data-opties="Zwemmen,Dans,Gymnastiek"></div></td></tr>
+      <tr><th>Fase bachelor</th><td><div class="keuze" data-veld="fase" data-opties="1,2"></div></td></tr>
+      <tr><th>Herhaling van de les</th><td><div class="keuze" data-veld="herhaling" data-opties="1,2,3,4,5,6"></div></td></tr>
+      <tr><th>Geprogrammeerd lesuur</th><td>
+        <div class="rijtje">
+          <input type="time" data-veld="lesuurVan" aria-label="Geprogrammeerd lesuur van">
+          <span>–</span>
+          <input type="time" data-veld="lesuurTot" aria-label="Geprogrammeerd lesuur tot">
+          <span class="muted">(bv. 9.00 – 10.00)</span>
+        </div>
+      </td></tr>
+      <tr><th>Start les (audio) – Einde les (audio)</th><td>
+        <div class="rijtje">
+          <input type="number" min="0" data-veld="startMin" aria-label="Start les minuten">min
+          <input type="number" min="0" max="59" data-veld="startSec" aria-label="Start les seconden">sec
+          <span>–</span>
+          <input type="number" min="0" data-veld="eindeMin" aria-label="Einde les minuten">min
+          <input type="number" min="0" max="59" data-veld="eindeSec" aria-label="Einde les seconden">sec
+        </div>
+      </td></tr>
+      <tr><th>Effectieve lesduur</th><td><strong id="duur">–</strong></td></tr>
+      <tr><th>Dubbel gecodeerd</th><td><div class="keuze" data-veld="dubbel" data-opties="Ja,Nee"></div></td></tr>
+      <tr class="alleenbijdubbel"><th>Naam tweede coder</th><td><input type="text" data-veld="tweedeCoder" aria-label="Naam tweede coder"></td></tr>
+    </table>
+  </details>
+
+  <details class="panel deel nietafdrukken" id="paneelInfo" open>
+    <summary><h2>2. Informatie en instructies</h2></summary>
+    <p class="muted nietafdrukken">De les wordt gecodeerd met event recording: je scoort elke uiting van de docent op het moment dat die optreedt. Er is geen tijdsinterval. Je codeert op basis van de audio-opname, mag pauzeren en terugspoelen, en codeert alleen wat hoorbaar is. Start bij Start les en stop bij Einde les.</p>
+
+    <details class="nietafdrukken">
+      <summary>Codeerinstructies</summary>
+      <ul>
+        <li>Vul vóór de start de algemene gegevens in.</li>
+        <li>Start met coderen bij Start les (eerste instructie van de docent aan de groep). Stop bij Einde les.</li>
+        <li>Luister bij elke nieuwe taak goed naar de criteria die de docent geeft. Noteer ze kort in de kolom Opmerking. Je hebt ze nodig om CF en RT van elkaar te onderscheiden.</li>
+        <li>Kies per uiting precies één code: CF, ET of RT.</li>
+        <li>Noteer op de gele regels (uiting 1, 6, 11, 16, …) het tijdstip in de audio als mm:ss, bv. 02:35. Zo vindt een tweede coder dezelfde fragmenten terug.</li>
+        <li>Het frequentieoverzicht (per pagina, totaal, per minuut en %) wordt automatisch berekend onder het codeerblad.</li>
+      </ul>
+    </details>
+
+    <details class="nietafdrukken">
+      <summary>Codes en definities (met voorbeelden)</summary>
+      <p class="muted">Alle drie de codes zijn een voorstel om iets aan de uitvoering of de taak te veranderen. Het verschil zit in wát er verandert.</p>
+      <div class="tabelwrap">
+        <table class="codetabel">
+          <thead>
+            <tr><th>Code</th><th>Categorie</th><th>Wat verandert er?</th><th>Voorbeeld (crawl, focus op insteken op de schouderlijn)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>CF</td><td>Corrigerende feedback</td><td>De uitvoering moet anders, volgens een criterium dat al gegeven was</td><td>„Je steekt je arm te ver naar het midden in, hou hem op de schouderlijn.”</td></tr>
+            <tr><td>ET</td><td>Extending task</td><td>De taak wordt moeilijker of makkelijker</td><td>„Probeer nu even op te hurken tot handstand in plaats van op te zwaaien.”</td></tr>
+            <tr><td>RT</td><td>Refining task</td><td>Een nieuw accent op de kwaliteit, dat niet in de oorspronkelijke criteria zat</td><td>„Focus nu eens even op het aanspannen van de buikspieren.”</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="nietafdrukken">
+      <summary>Definities, criteria en voorbeelden per code</summary>
+
+      <h4>CF: Corrigerende feedback</h4>
+      <p><b>Definitie.</b> Een verbale uiting waarin de docent voorstelt om de uitvoering anders te doen dan wat hij of zij op dat moment observeert. De correctie verwijst naar een criterium dat al bij de taak gegeven was.</p>
+      <p><b>Criteria</b></p>
+      <ul>
+        <li>De uiting reageert op een uitvoering die de docent net heeft gezien of gehoord.</li>
+        <li>Ze stelt een andere uitvoering voor (wat moet anders of beter).</li>
+        <li>Het criterium hoort bij de oorspronkelijke taak; de taak zelf blijft gelijk.</li>
+        <li>Gericht op de groep, een groepje of één student: telt telkens als 1.</li>
+      </ul>
+      <p><b>Wel CF</b></p>
+      <ul>
+        <li>„Je arm komt te ver naar binnen, steek in op je schouderlijn.” (crawl, criterium was schouderlijn)</li>
+        <li>„Je landt te vroeg, wacht met strekken tot na de draai.” (gymnastiek)</li>
+        <li>„Jullie lopen voor op de muziek, wacht op de tel.” (dans)</li>
+      </ul>
+      <p><b>Geen CF</b></p>
+      <ul>
+        <li>„Goed zo, mooi op de schouderlijn!” → niet coderen (lof).</li>
+        <li>„Steek eens je vingers eerst in het water.” terwijl dat geen criterium was → RT.</li>
+        <li>„Doe het nu zonder plankje.” → ET (de taak verandert).</li>
+      </ul>
+
+      <h4>ET: Extending task</h4>
+      <p><b>Definitie.</b> Een verbale uiting waarin de docent voorstelt om de taak moeilijker of makkelijker te maken. Dat kan voor de hele groep, een groepje of één student.</p>
+      <p><b>Criteria</b></p>
+      <ul>
+        <li>De taak zelf verandert: afstand, tempo, aantal herhalingen, materiaal, hulp, ruimte, complexiteit of combinatie met een andere vaardigheid.</li>
+        <li>De verandering maakt de taak moeilijker of makkelijker (beide zijn ET).</li>
+        <li>Het gaat niet om hóé goed de beweging wordt uitgevoerd; dat is CF of RT.</li>
+      </ul>
+      <p><b>Wel ET</b></p>
+      <ul>
+        <li>„Probeer het nu met ademhaling om de drie slagen.” (moeilijker)</li>
+        <li>„Neem er een plankje bij.” (makkelijker)</li>
+        <li>„Wie het kan, doet de radslag nu vanaf de verhoogde mat.” (moeilijker, voor een groepje)</li>
+        <li>„Voer de reeks nu uit op dubbel tempo.” (moeilijker, dans)</li>
+      </ul>
+      <p><b>Geen ET</b></p>
+      <ul>
+        <li>Uitleg van een volledig nieuwe oefening → niet coderen (nieuwe taak, geen uitbreiding van de vorige).</li>
+        <li>„Wissel nu van post.” → niet coderen (organisatie).</li>
+        <li>„Let op je voetspitsen.” → CF of RT (de taak blijft gelijk).</li>
+      </ul>
+
+      <h4>RT: Refining task</h4>
+      <p><b>Definitie.</b> Een verbale uiting waarin de docent voorstelt om de kwaliteit van de uitvoering te verbeteren door een nieuw accent te leggen. Dat accent verschilt van de criteria die bij de oorspronkelijke taak gegeven werden.</p>
+      <p><b>Criteria</b></p>
+      <ul>
+        <li>De taak blijft gelijk; alleen de aandacht verschuift naar een (nieuw) kwaliteitsaspect.</li>
+        <li>Het accent werd niet genoemd bij de oorspronkelijke taak.</li>
+        <li>De uiting hoeft niet te volgen op een fout: ook een accent voor wie het al goed doet, is RT.</li>
+      </ul>
+      <p><b>Voorbeeld.</b> De taak is crawl zwemmen met focus op insteken op de schouderlijn. De docent zegt: „Steek eens even jouw vingers eerst in het water.” Vingers-eerst was geen criterium van de originele taak, dus dit is RT.</p>
+      <p><b>Wel RT</b></p>
+      <ul>
+        <li>„Steek eens even je vingers eerst in het water.” (crawl, criterium was schouderlijn)</li>
+        <li>„Probeer nu ook je blik op het eindpunt te houden.” (gymnastiek, criterium was armzwaai)</li>
+        <li>„Laat nu je armen de beweging afmaken tot in je vingertoppen.” (dans, criterium was het ritme)</li>
+      </ul>
+      <p><b>Geen RT</b></p>
+      <ul>
+        <li>„Hou je arm op de schouderlijn.” als dat het criterium van de taak was → CF.</li>
+        <li>„Zwem nu 50 m in plaats van 25 m.” → ET.</li>
+      </ul>
+    </details>
+
+    <details class="nietafdrukken">
+      <summary>Beslisregels en grensgevallen</summary>
+      <ul>
+        <li><b>Alleen verbaal.</b> Codeer enkel wat de docent zegt. Demonstreren of een student fysiek bijsturen telt niet.</li>
+        <li><b>Niet coderen:</b> lof („Goed zo!”), aanmoediging („Zet door!”), uitleg van een volledig nieuwe taak, organisatie (posten, groepen, materiaal) en reacties op storend gedrag.</li>
+        <li><b>CF of RT? Kijk naar de oorspronkelijke criteria.</b> Verwijst de docent naar een criterium dat al bij de taak gegeven was, dan is het CF. Brengt de docent een nieuw kwaliteitsaccent aan, dan is het RT. Gebruik daarvoor de criteria die je in de kolom Opmerking noteerde.</li>
+        <li>In de oorspronkelijke taak: mogelijks verwerkt de docent al een extending task in de toelichting voor de volledige groep. Bijvoorbeeld: „Diegene onder jullie mogen het gerust al vanuit hurk proberen, anderen doen het nog vanuit zwaai”. In dit geval scoor je ook een ET.</li>
+        <li><b>Criteria niet gehoord.</b> Heb je de taakuitleg niet kunnen horen, codeer dan CF als de uiting duidelijk een fout corrigeert, en RT als ze een accent toevoegt zonder fout. Noteer de twijfel.</li>
+        <li><b>ET of RT?</b> Verandert wat de student moet doen (afstand, tempo, materiaal, moeilijkheid), dan is het ET. Blijft de taak gelijk maar verandert waar de student op let, dan is het RT.</li>
+        <li><b>Lof plus correctie.</b> „Goed, maar je arm moet hoger.” = 1 × CF; de lof wordt niet gecodeerd.</li>
+        <li><b>Twee-secondenregel.</b> Herhaalt de docent dezelfde uiting binnen 2 seconden, dan scoor je één keer.</li>
+        <li><b>Dezelfde boodschap aan verschillende studenten.</b> Zegt de docent dezelfde correctie na elkaar tegen drie studenten, dan scoor je 3 × CF.</li>
+        <li><b>Niet verstaanbaar.</b> Codeer niet en noteer het tijdstip bij de opmerkingen.</li>
+      </ul>
+    </details>
+
+    <details class="nietafdrukken">
+      <summary>Betrouwbaarheid en training</summary>
+      <p class="muted">Voorstel, aan te passen aan de studie: coders coderen pas zelfstandig na training, en minstens 20% van de lessen wordt dubbel gecodeerd.</p>
+      <ul>
+        <li><b>Training.</b> Bestudeer het protocol en codeer samen 2 oefenopnames. Bespreek elke afwijking aan de hand van de beslisregels, vooral CF tegenover RT.</li>
+        <li><b>Criterium.</b> Codeer daarna zelfstandig oefenopnames tot de overeenstemming met de mastercodering per code minstens 80% bedraagt.</li>
+        <li><b>Berekening per les.</b> Per code: (kleinste aantal ÷ grootste aantal) × 100. Gemiddeld over de codes geeft dit de totale overeenstemming. Gebruik de tijdstippen op de gele regels om uitingen tussen coders te vergelijken.</li>
+        <li><b>Over lessen heen.</b> Rapporteer daarnaast de ICC (two-way random, absolute agreement) op de frequenties per code.</li>
+        <li><b>Drift voorkomen.</b> Codeer halverwege de dataverzameling opnieuw een masteropname en herhaal de training als de overeenstemming onder 80% zakt.</li>
+      </ul>
+    </details>
+  </details>
+
+  <section class="panel" id="codeerblad">
+    <h2>3. Codeerblad</h2>
+    <p><strong>Codes:</strong> CF = corrigerende feedback · ET = extending task · RT = refining task</p>
+
+    <!-- Codeerpagina op het scherm -->
+    <div class="nietafdrukken">
+      <div class="paginakop" id="paginakop">
+        <span class="muted" id="voortgang"></span>
+      </div>
+      <div class="schermrijen" id="rijen"></div>
+      <div class="nav">
+        <button id="vorige" type="button">Vorige pagina</button>
+        <select id="paginakeuze" aria-label="Ga naar pagina"></select>
+        <strong id="paginatitel"></strong>
+        <button id="volgende" type="button" class="primary">Volgende pagina</button>
+      </div>
+      <p class="muted" id="opslaanhint"></p>
+      <div class="stoprij">
+        <button id="extra" type="button">Extra regels toevoegen (+50)</button>
+        <span class="muted">Zijn 150 regels niet genoeg? Voeg 50 regels toe; de nummering gaat dan verder vanaf 151.</span>
+      </div>
+      <p class="melding" id="melding" role="status" aria-live="polite"></p>
+    </div>
+
+    <!-- Afdrukversie: de codeerpagina's zoals op papier (wordt opgebouwd bij het afdrukken) -->
+    <div class="afdruk" id="afdruk"></div>
+  </section>
+
+  <section class="panel" id="paneelSamenvatting">
+    <h2>4. Samenvatting</h2>
+    <h3>Frequentieoverzicht</h3>
+    <div class="tabelwrap"><table class="samenvatting" id="samenvatting"></table></div>
+    <p class="muted">Per minuut = totaal ÷ effectieve lesduur in minuten (bv. 48 min 30 sec = 48,5). % van alle codes = totaal ÷ totaal alle codes × 100.</p>
+  </section>
+
+  <section class="panel" id="paneelBetrouwbaarheid">
+    <h2>Betrouwbaarheid en opmerkingen</h2>
+    <table class="gegevens">
+      <tr class="alleenbijdubbel"><th>Overeenstemming (%)</th><td><input type="number" class="breed" min="0" max="100" step="0.1" data-veld="overeenstemming" aria-label="Overeenstemming in procent"></td></tr>
+      <tr class="alleenbijdubbel"><th>Datum controle</th><td><input type="date" data-veld="datumControle" aria-label="Datum controle"></td></tr>
+      <tr><th>Opmerkingen<br><span class="muted" style="font-weight:normal">Onverstaanbare fragmenten met tijdstip, twijfelgevallen, bijzonderheden van de les</span></th><td><textarea data-veld="opmerkingen" aria-label="Opmerkingen"></textarea></td></tr>
+    </table>
+  </section>
+
+  <section class="panel nietafdrukken" id="exportpaneel">
+    <div class="acties">
+      <button class="primary" id="excel" type="button">Excel downloaden (.xlsx)</button>
+      <button id="afdrukken" type="button">Afdrukken / opslaan als PDF</button>
+      <button class="danger" id="nieuw" type="button">Nieuwe sessie</button>
+    </div>
+    <p class="muted" id="exportmelding" role="status" aria-live="polite">Je invoer wordt ook automatisch bewaard in deze browser. De Excel bevat de lesgegevens, alle uitingen, het frequentieoverzicht en het codeboek.</p>
+  </section>
+</main>
+
+<dialog id="verplichtDialoog" aria-labelledby="verplichtTitel">
+  <h2 id="verplichtTitel">Vul eerst deze velden in</h2>
+  <p>Je kan pas opslaan of afdrukken als deze velden onder <strong>1. Algemene gegevens</strong> zijn ingevuld:</p>
+  <ul id="verplichtLijst"></ul>
+  <p class="muted">Ze worden gebruikt voor de bestandsnaam.</p>
+  <button type="button" class="primary" id="verplichtSluit">OK, ik vul ze in</button>
+</dialog>
+
+<!-- ============ DEEL 3: DE WERKING (JavaScript) ============ -->
+<script>
+'use strict';
+
+// ---- Instellingen: hier pas je dingen aan ----
+const CODES = {
+  CF: { naam: 'Corrigerende feedback', uitleg: 'Corrigerende feedback: de uitvoering moet anders, volgens een criterium dat al gegeven was' },
+  ET: { naam: 'Extending task',        uitleg: 'Extending task: de taak wordt moeilijker of makkelijker' },
+  RT: { naam: 'Refining task',         uitleg: 'Refining task: nieuw accent op de kwaliteit, dat niet in de oorspronkelijke criteria zat' }
+};
+const REGELS_PER_PAGINA = 10;               // uitingen per pagina op het scherm
+const REGELS_PER_BLAD = 50;                 // een blad = een A4-pagina op papier (2 kolommen van 25)
+const KOLOM_GROOTTE = 25;
+const BASIS_BLADEN = 3;                     // 150 regels (blad 1, 2 en 3)
+const MAX_BLADEN = 6;                       // met extra regels maximaal 300
+const GEEL_ELKE = 5;                        // gele regels: 1, 6, 11, 16, ...
+const OPSLAGSLEUTEL = 'feedback-taakontwikkeling-v1';
+
+// ---- De toestand van het formulier (alles wat bewaard wordt) ----
+const nieuweState = () => ({ meta: {}, records: {}, pagina: 1, opgeslagen: {}, bladen: BASIS_BLADEN });
+let state = nieuweState();
+// records: { "1": {code:"CF", tijd:"02:35", opm:"criterium: schouderlijn"}, ... }
+
+const $ = id => document.getElementById(id);
+const codes = Object.keys(CODES);
+const maxRegels = () => state.bladen * REGELS_PER_BLAD;
+const aantalPaginas = () => maxRegels() / REGELS_PER_PAGINA;
+const paginaVan = nr => Math.ceil(nr / REGELS_PER_PAGINA);
+const bladVan = nr => Math.ceil(nr / REGELS_PER_BLAD);
+const bladNaam = b => b <= 3 ? 'Blad ' + b : 'Extra ' + (b - 3);
+const isGeel = nr => nr % GEEL_ELKE === 1;
+const nulTelling = () => Object.fromEntries(codes.map(c => [c, 0]));
+
+function bewaar() {
+  try { localStorage.setItem(OPSLAGSLEUTEL, JSON.stringify(state)); } catch (e) {}
+}
+function laad() {
+  try {
+    const s = JSON.parse(localStorage.getItem(OPSLAGSLEUTEL));
+    if (s && typeof s.meta === 'object' && typeof s.records === 'object'
+        && Number.isInteger(s.bladen) && s.bladen >= BASIS_BLADEN && s.bladen <= MAX_BLADEN
+        && Number.isInteger(s.pagina) && s.pagina >= 1 && s.pagina <= s.bladen * REGELS_PER_BLAD / REGELS_PER_PAGINA) {
+      s.opgeslagen = (s.opgeslagen && typeof s.opgeslagen === 'object') ? s.opgeslagen : {};
+      state = s;
+    }
+  } catch (e) {}
+}
+
+// ---- Kleine hulpfuncties om tabelcellen te maken ----
+function cel(tekst, tag = 'td') { const c = document.createElement(tag); c.textContent = tekst; return c; }
+function tabelRij(cellen, tag = 'td', klasse = '') {
+  const tr = document.createElement('tr');
+  if (klasse) tr.className = klasse;
+  cellen.forEach(t => tr.append(cel(t, tag)));
+  return tr;
+}
+const komma = (n, d = 2) => n.toFixed(d).replace('.', ',');
+
+// ---- Algemene gegevens ----
+function bouwKeuzes() {
+  document.querySelectorAll('.keuze').forEach(groep => {
+    const veld = groep.dataset.veld;
+    groep.dataset.opties.split(',').forEach(optie => {
+      const knop = document.createElement('button');
+      knop.type = 'button';
+      knop.textContent = optie;
+      knop.addEventListener('click', () => {
+        state.meta[veld] = state.meta[veld] === optie ? '' : optie;   // nogmaals klikken = wissen
+        bewaar();
+        toonGegevens();
+      });
+      groep.append(knop);
+    });
+  });
+  document.querySelectorAll('input[data-veld], textarea[data-veld]').forEach(el => {
+    el.addEventListener('input', () => {
+      state.meta[el.dataset.veld] = el.value;
+      bewaar();
+      berekenDuur();
+      toonTotalen();
+    });
+  });
+}
+function toonGegevens() {
+  document.querySelectorAll('[data-veld]').forEach(el => {
+    const veld = el.dataset.veld;
+    if (el.classList.contains('keuze')) {
+      el.querySelectorAll('button').forEach(k =>
+        k.setAttribute('aria-pressed', String(state.meta[veld] === k.textContent)));
+    } else {
+      el.value = state.meta[veld] || '';
+    }
+  });
+  // Bij 'Nee' zijn tweede coder, overeenstemming en datum controle niet van toepassing
+  document.querySelectorAll('.alleenbijdubbel').forEach(r => { r.hidden = state.meta.dubbel === 'Nee'; });
+  berekenDuur();
+}
+function seconden(min, sec) {
+  if (min === undefined || sec === undefined || min === '' || sec === '') return null;
+  const m = Number(min), s = Number(sec);
+  if (!Number.isFinite(m) || !Number.isFinite(s) || m < 0 || s < 0 || s > 59) return null;
+  return m * 60 + s;
+}
+function duurSeconden() {
+  const a = seconden(state.meta.startMin, state.meta.startSec);
+  const b = seconden(state.meta.eindeMin, state.meta.eindeSec);
+  return (a === null || b === null || b < a) ? null : b - a;
+}
+function duurMinuten() { const d = duurSeconden(); return d === null ? null : d / 60; }
+function berekenDuur() {
+  const d = duurSeconden();
+  $('duur').textContent = d === null ? '–' : Math.floor(d / 60) + ' min ' + String(d % 60).padStart(2, '0') + ' sec';
+}
+
+// ---- Codeerpagina (10 uitingen) ----
+let rijRefs = {};   // nr -> { knoppen }
+
+function rij(nr) { return state.records[nr] || { code: '', tijd: '', opm: '' }; }
+const tijdGeldig = t => /^\d{1,3}:[0-5]\d$/.test(t);
+function normaliseerTijd(t) {
+  t = t.trim();
+  if (/^\d{3,4}$/.test(t)) t = t.slice(0, -2).padStart(2, '0') + ':' + t.slice(-2);   // 235 -> 02:35
+  return t;
+}
+
+function maakRij(nr) {
+  const r = rij(nr);
+  const div = document.createElement('div');
+  div.className = 'rij' + (isGeel(nr) ? ' geel' : '') + (nr % GEEL_ELKE === 0 ? ' blokrand' : '');
+  const n = document.createElement('span');
+  n.className = 'nr';
+  n.textContent = nr;
+
+  let tijdEl;
+  if (isGeel(nr)) {
+    tijdEl = document.createElement('input');
+    tijdEl.type = 'text';
+    tijdEl.className = 'tijd';
+    tijdEl.placeholder = 'mm:ss';
+    tijdEl.maxLength = 6;
+    tijdEl.inputMode = 'numeric';
+    tijdEl.value = r.tijd || '';
+    tijdEl.setAttribute('aria-label', 'Tijdstip in de audio van uiting ' + nr + ' (mm:ss)');
+    const controle = () => tijdEl.setAttribute('aria-invalid', String(tijdEl.value !== '' && !tijdGeldig(tijdEl.value)));
+    tijdEl.addEventListener('input', () => { zetTekst(nr, 'tijd', tijdEl.value); controle(); });
+    tijdEl.addEventListener('blur', () => {
+      const nieuw = normaliseerTijd(tijdEl.value);
+      if (nieuw !== tijdEl.value) { tijdEl.value = nieuw; zetTekst(nr, 'tijd', nieuw); }
+      controle();
+    });
+    controle();
+  } else {
+    tijdEl = document.createElement('span');
+    tijdEl.className = 'tijd leeg';
+  }
+
+  const groep = document.createElement('span');
+  groep.className = 'codes';
+  const knoppen = {};
+  for (const code of codes) {
+    const k = document.createElement('button');
+    k.type = 'button';
+    k.textContent = code;
+    k.title = CODES[code].uitleg;
+    k.setAttribute('aria-label', 'Uiting ' + nr + ': ' + CODES[code].naam);
+    k.addEventListener('click', () => zetCode(nr, code));
+    knoppen[code] = k;
+    groep.append(k);
+  }
+
+  const opm = document.createElement('input');
+  opm.type = 'text';
+  opm.className = 'opm';
+  opm.placeholder = 'Opmerking';
+  opm.value = r.opm || '';
+  opm.setAttribute('aria-label', 'Opmerking bij uiting ' + nr);
+  opm.addEventListener('input', () => zetTekst(nr, 'opm', opm.value));
+
+  div.append(n, tijdEl, groep, opm);
+  rijRefs[nr] = { knoppen };
+  return div;
+}
+
+function toonRij(nr) {
+  const ref = rijRefs[nr];
+  if (!ref) return;
+  const r = rij(nr);
+  for (const code of codes) ref.knoppen[code].setAttribute('aria-pressed', String(r.code === code));
+}
+
+function eersteRegel() { return (state.pagina - 1) * REGELS_PER_PAGINA + 1; }
+
+function toonVoortgang() {
+  const eerste = eersteRegel();
+  let gecodeerd = 0;
+  for (let nr = eerste; nr < eerste + REGELS_PER_PAGINA; nr++) if (rij(nr).code) gecodeerd++;
+  $('voortgang').textContent = bladNaam(bladVan(eerste)) + ' · ' + gecodeerd + ' van ' + REGELS_PER_PAGINA + ' regels gecodeerd';
+}
+
+function toonTitel() {
+  const eerste = eersteRegel(), laatste = eerste + REGELS_PER_PAGINA - 1;
+  $('paginatitel').textContent = 'Pagina ' + state.pagina + ' · Regels ' + eerste + '–' + laatste
+    + (state.opgeslagen[state.pagina] ? ' ✓' : '');
+  const keuze = $('paginakeuze');
+  keuze.replaceChildren();
+  for (let p = 1; p <= aantalPaginas(); p++) {
+    keuze.add(new Option('Pagina ' + p + (state.opgeslagen[p] ? ' ✓' : ''), String(p)));
+  }
+  keuze.value = String(state.pagina);
+  $('vorige').disabled = state.pagina === 1;
+  const laatstePagina = state.pagina === aantalPaginas();
+  $('volgende').textContent = laatstePagina ? 'Opslaan' : 'Volgende pagina';
+  $('opslaanhint').textContent = laatstePagina
+    ? 'Dit is de laatste pagina. Klik op Opslaan om af te sluiten, of voeg extra regels toe als je er meer nodig hebt.'
+    : 'Klaar met deze ' + REGELS_PER_PAGINA + ' regels? Klik op Volgende pagina: de pagina wordt opgeslagen en je gaat meteen verder. Je hoeft niet alle regels te gebruiken.';
+  $('extra').disabled = state.bladen >= MAX_BLADEN;
+}
+
+function toonPagina() {
+  const eerste = eersteRegel();
+  $('rijen').replaceChildren();
+  rijRefs = {};
+  for (let nr = eerste; nr < eerste + REGELS_PER_PAGINA; nr++) {
+    $('rijen').append(maakRij(nr));
+    toonRij(nr);
+  }
+  toonTitel();
+  toonVoortgang();
+}
+
+function paginaGewijzigd(nr) {
+  delete state.opgeslagen[paginaVan(nr)];   // na een wijziging moet de pagina opnieuw worden opgeslagen
+  bewaar();
+  toonTitel();
+}
+function zetTekst(nr, veld, waarde) {         // tijd of opmerking
+  const r = Object.assign({ code: '', tijd: '', opm: '' }, state.records[nr]);
+  r[veld] = waarde;
+  state.records[nr] = r;
+  paginaGewijzigd(nr);
+}
+function zetCode(nr, code) {
+  const r = Object.assign({ code: '', tijd: '', opm: '' }, state.records[nr]);
+  r.code = (r.code === code) ? '' : code;     // nogmaals klikken = wissen
+  state.records[nr] = r;
+  paginaGewijzigd(nr);
+  toonRij(nr);
+  toonVoortgang();
+  toonTotalen();
+  $('melding').textContent = '';
+}
+
+function opslaanEnVolgende() {
+  const opgeslagenPagina = state.pagina;
+  const laatste = opgeslagenPagina === aantalPaginas();
+  state.opgeslagen[opgeslagenPagina] = true;
+  if (!laatste) state.pagina++;
+  bewaar();
+  toonPagina();
+  $('melding').textContent = 'Pagina ' + opgeslagenPagina + ' opgeslagen. ' + (laatste
+    ? 'Dit was de laatste pagina.'
+    : 'Je bent nu bij regels ' + eersteRegel() + '–' + (eersteRegel() + REGELS_PER_PAGINA - 1) + '.');
+  const doel = $('paginakop');
+  if (doel && doel.scrollIntoView) doel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function gaNaar(pagina) {
+  if (pagina < 1 || pagina > aantalPaginas()) return;
+  state.pagina = pagina;
+  bewaar();
+  toonPagina();
+  $('melding').textContent = '';
+}
+function voegRegelsToe() {
+  if (state.bladen >= MAX_BLADEN) return;
+  state.bladen++;
+  const eerste = (state.bladen - 1) * REGELS_PER_BLAD + 1;
+  state.pagina = paginaVan(eerste);
+  bewaar();
+  toonPagina();
+  toonTotalen();
+  $('melding').textContent = '50 extra regels toegevoegd (regels ' + eerste + '–' + (eerste + REGELS_PER_BLAD - 1) + ').';
+}
+$('volgende').addEventListener('click', opslaanEnVolgende);
+$('vorige').addEventListener('click', () => gaNaar(state.pagina - 1));
+$('paginakeuze').addEventListener('change', () => gaNaar(Number($('paginakeuze').value)));
+$('extra').addEventListener('click', voegRegelsToe);
+
+// ---- Tellen en frequentieoverzicht ----
+function telRegels(van, tot) {
+  const t = nulTelling();
+  for (let nr = van; nr <= tot; nr++) {
+    const r = state.records[nr];
+    if (r && r.code) t[r.code]++;
+  }
+  return t;
+}
+const telBlad = b => telRegels((b - 1) * REGELS_PER_BLAD + 1, b * REGELS_PER_BLAD);
+const som = t => codes.reduce((n, c) => n + t[c], 0);
+
+function toonTotalen() {
+  const perBlad = [];
+  for (let b = 1; b <= state.bladen; b++) perBlad.push(telBlad(b));
+  const totaalAlles = perBlad.reduce((n, t) => n + som(t), 0);
+  const dm = duurMinuten();
+  const perMinuut = n => (dm ? komma(n / dm) : '–');
+  const tabel = $('samenvatting');
+  tabel.replaceChildren(tabelRij(['Categorie', ...perBlad.map((_, i) => bladNaam(i + 1)), 'Totaal', 'Per minuut', '% van alle codes'], 'th'));
+  for (const c of codes) {
+    const n = perBlad.reduce((x, t) => x + t[c], 0);
+    const pct = totaalAlles ? komma(n / totaalAlles * 100, 1) + ' %' : '–';
+    tabel.append(tabelRij([c + ' · ' + CODES[c].naam.toLowerCase(), ...perBlad.map(t => t[c]), n, perMinuut(n), pct]));
+  }
+  tabel.append(tabelRij(['Totaal alle codes', ...perBlad.map(som), totaalAlles, perMinuut(totaalAlles), '—'], 'td', 'som'));
+}
+
+// ---- Afdrukversie: de codeerpagina's zoals op papier (2 kolommen van 25 per pagina) ----
+function bouwAfdruk() {
+  const houder = $('afdruk');
+  houder.replaceChildren();
+  const m = state.meta;
+  for (let b = 1; b <= state.bladen; b++) {
+    const sec = document.createElement('section');
+    sec.className = 'afdrukblad';
+    const h = document.createElement('h3');
+    const eerste = (b - 1) * REGELS_PER_BLAD + 1;
+    h.textContent = 'Codeerformulier Corrigerende feedback en taakadaptaties · blad ' + b + ' van ' + state.bladen
+      + ' · regels ' + eerste + '–' + (eerste + REGELS_PER_BLAD - 1);
+    const kop = document.createElement('p');
+    kop.className = 'muted';
+    kop.textContent = 'Observator: ' + (m.observator || '……') + ' · Lesgever: ' + (m.lesgever || '……') + ' · Datum: ' + (m.datum || '……');
+    const rooster = document.createElement('div');
+    rooster.className = 'afdrukrooster';
+    for (let k = 0; k < REGELS_PER_BLAD / KOLOM_GROOTTE; k++) {
+      const kol = document.createElement('div');
+      const van = eerste + k * KOLOM_GROOTTE;
+      for (let nr = van; nr < van + KOLOM_GROOTTE; nr++) {
+        const r = rij(nr);
+        const regel = document.createElement('div');
+        regel.className = 'arij' + (isGeel(nr) ? ' geel' : '') + (nr % GEEL_ELKE === 0 ? ' blokrand' : '');
+        const n = document.createElement('span'); n.className = 'anr'; n.textContent = nr;
+        const t = document.createElement('span'); t.className = 'atijd'; t.textContent = isGeel(nr) ? (r.tijd || '__:__') : '';
+        regel.append(n, t);
+        for (const code of codes) {
+          const s = document.createElement('span');
+          s.className = 'acode' + (r.code === code ? ' gekozen' : '');
+          s.textContent = code;
+          regel.append(s);
+        }
+        const o = document.createElement('span'); o.className = 'aopm'; o.textContent = r.opm || '';
+        regel.append(o);
+        kol.append(regel);
+      }
+      const kt = telRegels(van, van + KOLOM_GROOTTE - 1);
+      const totaal = document.createElement('div');
+      totaal.className = 'akolomtotaal';
+      totaal.textContent = 'Totaal kolom: ' + codes.map(c => c + ' ' + kt[c]).join('   ');
+      kol.append(totaal);
+      rooster.append(kol);
+    }
+    const t = telBlad(b);
+    const tabel = document.createElement('table');
+    tabel.className = 'totaal';
+    tabel.append(tabelRij(['', ...codes], 'th'), tabelRij(['Totaal blad ' + b, ...codes.map(c => t[c])]));
+    sec.append(h, kop, rooster, tabel);
+    houder.append(sec);
+  }
+}
+window.addEventListener('beforeprint', bouwAfdruk);
+
+// ---- Excel-export (zonder externe bibliotheek) ----
+function xml(v) {
+  return String(v ?? '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+}
+function kolomNaam(n) { let t = ''; for (n++; n > 0; n = Math.floor((n - 1) / 26)) t = String.fromCharCode(65 + (n - 1) % 26) + t; return t; }
+
+// Een cel is een tekst, een getal of { formule, waarde, stijl }. Stijlen: 0 normaal, 1 kop, 2 procent, 3 tijd (mm:ss)
+function celXml(w, ref, stijl) {
+  if (w && typeof w === 'object' && 'formule' in w) {
+    const t = typeof w.waarde === 'string' ? ' t="str"' : '';
+    return `<c r="${ref}" s="${w.stijl ?? stijl}"${t}><f>${xml(w.formule)}</f><v>${xml(w.waarde)}</v></c>`;
+  }
+  if (typeof w === 'number') return `<c r="${ref}" s="${stijl}"><v>${w}</v></c>`;
+  if (w === '' || w === null || w === undefined) return `<c r="${ref}" s="${stijl}"/>`;
+  return `<c r="${ref}" s="${stijl}" t="inlineStr"><is><t xml:space="preserve">${xml(w)}</t></is></c>`;
+}
+function werkbladXml(rijen, breedtes, opties = {}) {
+  const hoogte = opties.hoogte || 22;
+  const data = rijen.map((rij, i) =>
+    `<row r="${i + 1}" ht="${hoogte}" customHeight="1">${rij.map((w, j) => celXml(w, kolomNaam(j) + (i + 1), i === 0 ? 1 : 0)).join('')}</row>`).join('');
+  const gebied = 'A1:' + kolomNaam(breedtes.length - 1) + rijen.length;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="${gebied}"/><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="22"/><cols>${breedtes.map((b, i) => `<col min="${i + 1}" max="${i + 1}" width="${b}" customWidth="1"/>`).join('')}</cols><sheetData>${data}</sheetData>${opties.filter ? `<autoFilter ref="${gebied}"/>` : ''}<pageMargins left="0.3" right="0.3" top="0.4" bottom="0.4" header="0.2" footer="0.2"/><pageSetup paperSize="9" orientation="landscape"/></worksheet>`;
+}
+function zipOpslaan(bestanden) {   // eenvoudige zip zonder compressie
+  const enc = new TextEncoder(), delen = [], centraal = [];
+  let offset = 0;
+  const tabel = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+  const crc32 = bytes => { let c = 0xffffffff; for (const b of bytes) c = tabel[(c ^ b) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  for (const [pad, tekst] of Object.entries(bestanden)) {
+    const naam = enc.encode(pad), data = enc.encode(tekst), crc = crc32(data);
+    const h = new Uint8Array(30), v = new DataView(h.buffer);
+    v.setUint32(0, 0x04034b50, true); v.setUint16(4, 20, true); v.setUint16(6, 0x800, true); v.setUint16(12, 33, true);
+    v.setUint32(14, crc, true); v.setUint32(18, data.length, true); v.setUint32(22, data.length, true); v.setUint16(26, naam.length, true);
+    delen.push(h, naam, data);
+    const c = new Uint8Array(46), cv = new DataView(c.buffer);
+    cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true); cv.setUint16(8, 0x800, true); cv.setUint16(14, 33, true);
+    cv.setUint32(16, crc, true); cv.setUint32(20, data.length, true); cv.setUint32(24, data.length, true); cv.setUint16(28, naam.length, true); cv.setUint32(42, offset, true);
+    centraal.push(c, naam);
+    offset += h.length + naam.length + data.length;
+  }
+  const grootte = centraal.reduce((n, c) => n + c.length, 0), e = new Uint8Array(22), ev = new DataView(e.buffer);
+  const aantal = Object.keys(bestanden).length;
+  ev.setUint32(0, 0x06054b50, true); ev.setUint16(8, aantal, true); ev.setUint16(10, aantal, true); ev.setUint32(12, grootte, true); ev.setUint32(16, offset, true);
+  const alles = [...delen, ...centraal, e], uit = new Uint8Array(offset + grootte + 22);
+  let pos = 0;
+  for (const b of alles) { uit.set(b, pos); pos += b.length; }
+  return uit;
+}
+
+
+function bouwExcel() {
+  const m = state.meta;
+  const nee = m.dubbel === 'Nee';
+  const nvt = 'Niet van toepassing';
+  const audio = (min, sec) => (min !== undefined && min !== '' && sec !== undefined && sec !== '') ? min + ' min ' + sec + ' sec' : '';
+  const lesuur = (m.lesuurVan || m.lesuurTot) ? (m.lesuurVan || '') + ' – ' + (m.lesuurTot || '') : '';
+  const dm = duurMinuten();
+  const ovr = (m.overeenstemming !== undefined && m.overeenstemming !== '' && Number.isFinite(Number(m.overeenstemming))) ? Number(m.overeenstemming) : '';
+
+  // 1. Algemene gegevens
+  const info = [['Veld', 'Waarde'],
+    ['Naam observator', m.observator || ''], ['Lesgever', m.lesgever || ''], ['Datum gecodeerde les', m.datum || ''],
+    ['Bewegingsdomein', m.domein || ''], ['Fase bachelor', m.fase || ''], ['Herhaling van de les', m.herhaling || ''],
+    ['Geprogrammeerd lesuur', lesuur], ['Start les (audio)', audio(m.startMin, m.startSec)], ['Einde les (audio)', audio(m.eindeMin, m.eindeSec)],
+    ['Effectieve lesduur', $('duur').textContent === '–' ? '' : $('duur').textContent],
+    ['Effectieve lesduur (minuten, decimaal)', dm === null ? '' : Math.round(dm * 1000) / 1000],
+    ['Dubbel gecodeerd', m.dubbel || ''],
+    ['Tweede coder', nee ? nvt : (m.tweedeCoder || '')],
+    ['Overeenstemming (%)', nee ? nvt : ovr],
+    ['Datum controle', nee ? nvt : (m.datumControle || '')],
+    ['Opmerkingen', m.opmerkingen || '']];
+  const durRij = info.findIndex(r => r[0] === 'Effectieve lesduur (minuten, decimaal)') + 1;
+  const dur = `'Algemene gegevens'!$B$${durRij}`;
+
+  // 2. Uitingen
+  const uit = [['Nr', 'Blad', 'Blad formulier', 'Tijd (audio)', 'Code', 'Opmerking']];
+  for (let nr = 1; nr <= maxRegels(); nr++) {
+    const r = rij(nr);
+    uit.push([nr, bladVan(nr), bladNaam(bladVan(nr)), r.tijd || '', r.code || '', r.opm || '']);
+  }
+
+  // 3. Frequentieoverzicht (met formules die naar het blad Uitingen verwijzen)
+  const laatsteRij = maxRegels() + 1, k = state.bladen;
+  const B = `Uitingen!$B$2:$B$${laatsteRij}`, E = `Uitingen!$E$2:$E$${laatsteRij}`;
+  const perBlad = []; for (let b = 1; b <= k; b++) perBlad.push(telBlad(b));
+  const totaalAlles = perBlad.reduce((n, t) => n + som(t), 0);
+  const kolTot = kolomNaam(k + 1), kolMin = kolomNaam(k + 2), laatsteBlad = kolomNaam(k);
+  const totaalRij = codes.length + 2;
+  const sam = [['Categorie', ...perBlad.map((_, i) => bladNaam(i + 1)), 'Totaal', 'Per minuut', '% van alle codes']];
+  codes.forEach((c, i) => {
+    const r_ = i + 2, n = perBlad.reduce((x, t) => x + t[c], 0);
+    sam.push([c + ' · ' + CODES[c].naam.toLowerCase(),
+      ...perBlad.map((t, b) => ({ formule: `COUNTIFS(${B},${b + 1},${E},"${c}")`, waarde: t[c] })),
+      { formule: `SUM(B${r_}:${laatsteBlad}${r_})`, waarde: n },
+      { formule: `IF(OR(${dur}="",${dur}=0),"",${kolTot}${r_}/${dur})`, waarde: dm ? n / dm : '', stijl: 3 },
+      { formule: `IF($${kolTot}$${totaalRij}=0,"",${kolTot}${r_}/$${kolTot}$${totaalRij})`, waarde: totaalAlles ? n / totaalAlles : '', stijl: 2 }]);
+  });
+  sam.push(['Totaal alle codes',
+    ...perBlad.map((t, b) => ({ formule: `SUM(${kolomNaam(b + 1)}2:${kolomNaam(b + 1)}${codes.length + 1})`, waarde: som(t) })),
+    { formule: `SUM(${kolTot}2:${kolTot}${codes.length + 1})`, waarde: totaalAlles },
+    { formule: `IF(OR(${dur}="",${dur}=0),"",${kolTot}${totaalRij}/${dur})`, waarde: dm ? totaalAlles / dm : '', stijl: 3 },
+    '—']);
+  sam.push(['']);
+  sam.push(['Per minuut = totaal ÷ effectieve lesduur in minuten (bv. 48 min 30 sec = 48,5). % van alle codes = totaal ÷ totaal alle codes × 100.']);
+
+  // 4. Codeboek (uit de tabel op de pagina)
+  const codeboek = [['Code', 'Categorie', 'Wat verandert er?', 'Voorbeeld'],
+    ...[...document.querySelectorAll('.codetabel tbody tr')].map(tr => [...tr.children].map(td => td.textContent.trim()))];
+
+  const bladen = [
+    ['Algemene gegevens', werkbladXml(info, [40, 60], { hoogte: 24 })],
+    ['Uitingen', werkbladXml(uit, [8, 8, 18, 14, 10, 70], { filter: true })],
+    ['Samenvatting', werkbladXml(sam, [34, ...perBlad.map(() => 14), 12, 14, 18], { hoogte: 24 })],
+    ['Codeboek', werkbladXml(codeboek, [10, 24, 50, 60], { hoogte: 60 })]
+  ];
+  const ns = 'http://schemas.openxmlformats.org/', f = {};
+  f['[Content_Types].xml'] = `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="${ns}package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${bladen.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`;
+  f['_rels/.rels'] = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="${ns}package/2006/relationships"><Relationship Id="rId1" Type="${ns}officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  f['xl/workbook.xml'] = `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="${ns}spreadsheetml/2006/main" xmlns:r="${ns}officeDocument/2006/relationships"><sheets>${bladen.map((b, i) => `<sheet name="${xml(b[0])}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets><calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>`;
+  f['xl/_rels/workbook.xml.rels'] = `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="${ns}package/2006/relationships">${bladen.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${ns}officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${bladen.length + 1}" Type="${ns}officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  f['xl/styles.xml'] = `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.0%"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/><color rgb="FF0B2A45"/></font><font><b/><sz val="11"/><name val="Calibri"/><color rgb="FFFFFFFF"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF00407A"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"><alignment vertical="center"/></xf><xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"><alignment vertical="center"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  bladen.forEach((b, i) => { f[`xl/worksheets/sheet${i + 1}.xml`] = b[1]; });
+  return zipOpslaan(f);
+}
+function downloadBestand(inhoud, bestandsnaam, type) {
+  const url = URL.createObjectURL(new Blob([inhoud], { type }));
+  const a = document.createElement('a');
+  a.href = url; a.download = bestandsnaam;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+$('excel').addEventListener('click', () => {
+  if (!verplichtOK()) return;
+  const naam = exportNaam() + '.xlsx';
+  downloadBestand(bouwExcel(), naam, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  $('exportmelding').textContent = 'Excel gedownload: ' + naam;
+});
+
+// ---- Knoppen onderaan ----
+$('afdrukken').addEventListener('click', () => { if (verplichtOK()) window.print(); });
+$('nieuw').addEventListener('click', () => {
+  if (!confirm('Nieuwe sessie starten? De huidige invoer wordt gewist.')) return;
+  state = nieuweState();
+  bewaar();
+  toonGegevens();
+  toonPagina();
+  toonTotalen();
+  $('melding').textContent = '';
+});
+
+// ---- Opstarten ----
+laad();
+bouwKeuzes();
+toonGegevens();
+toonPagina();
+toonTotalen();
+
+// ---- Verplichte velden en bestandsnaam ----
+const VERPLICHT = [
+  ['domein', 'Bewegingsdomein'],
+  ['fase', 'Fase bachelor'],
+  ['herhaling', 'Herhaling van de les'],
+  ['observator', 'Naam observator']
+];
+const leegVeld = v => !String(state.meta[v] || '').trim();
+function verplichtOK() {
+  const leeg = VERPLICHT.filter(([v]) => leegVeld(v));
+  if (!leeg.length) return true;
+  $('verplichtLijst').innerHTML = '';
+  leeg.forEach(([, label]) => { const li = document.createElement('li'); li.textContent = label; $('verplichtLijst').append(li); });
+  $('verplichtDialoog').showModal();
+  return false;
+}
+$('verplichtSluit').addEventListener('click', () => {
+  $('verplichtDialoog').close();
+  const eerste = VERPLICHT.map(([v]) => v).find(leegVeld);
+  const el = eerste && document.querySelector('[data-veld="' + eerste + '"]');
+  if (el) {
+    $('paneelGegevens').open = true;
+    el.scrollIntoView({ block: 'center' });
+    (el.matches('input') ? el : el.querySelector('button'))?.focus();
+  }
+});
+// Bestandsnaam: RepeatedTeaching_Feedback&TaskAdaptations_<domein>_Bachelor<fase>_HerhalingLes<nr>_<observator>
+function exportNaam() {
+  const m = state.meta;
+  const schoon = t => String(t || '').trim().replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, '-');
+  return ['RepeatedTeaching', 'Feedback&TaskAdaptations', schoon(m.domein),
+    m.fase ? 'Bachelor' + schoon(m.fase) : '',
+    m.herhaling ? 'HerhalingLes' + schoon(m.herhaling) : '',
+    schoon(m.observator)].filter(Boolean).join('_');
+}
+// Klapbare delen: bij afdrukken open; PDF krijgt dezelfde naam als de Excel
+(() => {
+  const delen = [...document.querySelectorAll('details.deel')], titel = document.title;
+  let stand = [];
+  window.addEventListener('beforeprint', () => {
+    stand = delen.map(d => d.open); delen.forEach(d => { d.open = true; });
+    document.title = exportNaam();
+  });
+  window.addEventListener('afterprint', () => { delen.forEach((d, i) => { d.open = stand[i]; }); document.title = titel; });
+})();
+</script>
+</html>
